@@ -4,8 +4,8 @@ pygame.init()
 
 
 # pygame setup
-screen_width = 800
-screen_height = 800
+screen_width = 800 
+screen_height = 800 
 pixel_size = 40 
 
 pixel_grid_max_x = int(screen_width / pixel_size)
@@ -18,9 +18,11 @@ blue = (0, 0, 255)
 colours = [red,green,blue]
 # snake 
 """
-appends realtime snake coordinates to the back of the queue 
-always remove the first item in the queue 
-this way your snake head will always be updated  and the body holds the value of the previous head
+inserts realtime snake coordinates to the front of the queue  
+always remove the last item in the queue 
+this way your snake head will always be updated and the body holds the value of the previous head
+current information first then the history continues on [new,old,older,oldest] when oldest is removed 
+its called first in first out because if you had a line of people the first person (oldest value) gets removed first before the newer person (new value) gets moved to the position of whos infront of them 
 """
 position = "STATIC"
 snake_x = screen_width / 2 
@@ -80,17 +82,21 @@ while running:
     # left, top, width, height
 
     current = (snake_x,snake_y,snake_width,pixel_size)
-    snake.append(current)
+    snake.insert(0,current)
 
 
 
         
     print(snake)
-    for part in snake:
-        pygame.draw.rect(screen, red,part)
+    for part in enumerate(snake):
+        if part[0] == 0: # head
+            pygame.draw.rect(screen, blue,part[1])
+        else:
+
+            pygame.draw.rect(screen, red,part[1])
 
 
-    snake.remove(snake[0])
+    snake.remove(snake[-1])
 
     # draw apple on screen 
     pygame.draw.rect(screen, green,(apple_x,apple_y,pixel_size,pixel_size))
