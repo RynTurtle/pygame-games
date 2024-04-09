@@ -1,8 +1,9 @@
-import pygame
-import random
-# pygame setup
+import pygame 
+import random 
 pygame.init()
 
+
+# pygame setup
 screen_width = 800
 screen_height = 800
 pixel_size = 40 
@@ -11,17 +12,21 @@ pixel_grid_max_x = int(screen_width / pixel_size)
 pixel_grid_max_y = int(screen_height / pixel_size)
 
 # colours 
-red = (255,0,0,)
+red = (255,0,0)
 green = (0, 255, 0)
-
-
+blue = (0, 0, 255)
+colours = [red,green,blue]
 # snake 
+"""
+appends realtime snake coordinates to the back of the queue 
+always remove the first item in the queue 
+this way your snake head will always be updated  and the body holds the value of the previous head
+"""
 position = "STATIC"
 snake_x = screen_width / 2 
 snake_y =  0 
-snake_width = pixel_size 
-
-
+snake_width = pixel_size
+snake = [] 
 # apple
 spawn_apple = True
 apple_x = 0 
@@ -44,7 +49,7 @@ while running:
                 position = "LEFT"
             if event.key == pygame.K_RIGHT:
                 position = "RIGHT"
-    screen.fill("black")
+
     if position == "UP":
         snake_y -= pixel_size
     if position == "DOWN":
@@ -63,16 +68,29 @@ while running:
         apple_x = random.randrange(0,pixel_grid_max_x) * pixel_size
         apple_y = random.randrange(0,pixel_grid_max_y) * pixel_size
         spawn_apple = False 
-
     
     if snake_x == apple_x and snake_y == apple_y:
         spawn_apple = True
-        print("nom")
+        snake.append(current)
 
+
+
+    screen.fill("black")
     # draw snake on screen 
     # left, top, width, height
-    snake = (snake_x,snake_y,snake_width,pixel_size)
-    pygame.draw.rect(screen, red,snake)
+
+    current = (snake_x,snake_y,snake_width,pixel_size)
+    snake.append(current)
+
+
+
+        
+    print(snake)
+    for part in snake:
+        pygame.draw.rect(screen, red,part)
+
+
+    snake.remove(snake[0])
 
     # draw apple on screen 
     pygame.draw.rect(screen, green,(apple_x,apple_y,pixel_size,pixel_size))
@@ -83,4 +101,3 @@ while running:
     clock.tick(15)  # FPS
 
 pygame.quit()
-
