@@ -1,109 +1,162 @@
 import pygame 
 import random 
-pygame.init()
-
-
-# pygame setup
-screen_width = 800 
-screen_height = 800 
-pixel_size = 40 
-
-pixel_grid_max_x = int(screen_width / pixel_size)
-pixel_grid_max_y = int(screen_height / pixel_size)
-
-# colours 
-red = (255,0,0)
-green = (0, 255, 0)
-blue = (0, 0, 255)
-colours = [red,green,blue]
-# snake 
-"""
-inserts realtime snake coordinates to the front of the queue  
-always remove the last item in the queue 
-this way your snake head will always be updated and the body holds the value of the previous head
-current information first then the history continues on [new,old,older,oldest] when oldest is removed 
-its called first in first out because if you had a line of people the first person (oldest value) gets removed first before the newer person (new value) gets moved to the position of whos infront of them 
-"""
-position = "STATIC"
-snake_x = screen_width / 2 
-snake_y =  0 
-snake_width = pixel_size
-snake = [] 
-# apple
-spawn_apple = True
-apple_x = 0 
-apple_y = 0 
-
-screen = pygame.display.set_mode((screen_width, screen_height))
-clock = pygame.time.Clock()
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP:
-                position = "UP"
-            if event.key == pygame.K_DOWN:
-                position = "DOWN"
-            if event.key == pygame.K_LEFT:
-                position = "LEFT"
-            if event.key == pygame.K_RIGHT:
-                position = "RIGHT"
-
-    if position == "UP":
-        snake_y -= pixel_size
-    if position == "DOWN":
-        snake_y += pixel_size
-    if position == "LEFT":
-        snake_x -= pixel_size
-    if position == "RIGHT":
-        snake_x += pixel_size
+class Apple():
+    def __init__(self,screen,apple_colour,grid_max_x,grid_max_y,apple_pixel_size):
+        self.apple_colour = apple_colour
+        self.apple_x = 0
+        self.apple_y = 0
+        self.grid_max_x = grid_max_x
+        self.grid_max_y = grid_max_y
+        self.apple_size = apple_pixel_size
+        self.screen = screen 
+        self.spawned = False 
         
-    if snake_x > screen_width or snake_x < 0:
-        running = False 
-    if snake_y > screen_height or snake_y < 0:
-        running = False 
+    def get_apple_position(self):
+        return {"x":self.apple_x,"y":self.apple_y}
 
-    if spawn_apple == True:
-        apple_x = random.randrange(0,pixel_grid_max_x) * pixel_size
-        apple_y = random.randrange(0,pixel_grid_max_y) * pixel_size
-        spawn_apple = False 
-    
-    if snake_x == apple_x and snake_y == apple_y:
-        spawn_apple = True
-        snake.append(current)
+    def spawn(self):        
+        self.apple_x = random.randrange(0,self.grid_max_x) * self.apple_size
+        self.apple_y = random.randrange(0,self.grid_max_y) * self.apple_size 
 
+    def draw(self):
+        pygame.draw.rect(self.screen, self.apple_colour,(self.apple_x,self.apple_y,self.apple_size,self.apple_size))
 
+class Snake():
+    def __init__(self,screen,snake_colour,width,height,apple):
+        self.screen = screen
+        self.screen_width = width 
+        self.screen_height = height  
 
-    screen.fill("black")
-    # draw snake on screen 
-    # left, top, width, height
+        self.snake_x = (self.screen_width - 40) / 2
+        self.snake_y = 0 
+        self.snake_body = []
 
-    current = (snake_x,snake_y,snake_width,pixel_size)
-    snake.insert(0,current)
+        self.snake_colour = snake_colour
+        self.snake_pixel_size = 40 
+        self.direction = ""
+        self.apple = apple 
+        self.score = 0 
+        self.head_position = (self.snake_x,self.snake_y,self.snake_pixel_size,self.snake_pixel_size)
+    def change_direction(self,direction):
+        self.direction = direction 
+ 
 
+    def move(self):
+        # change the x and y coordinates based on movements given 
+        if self.direction == "UP":
+            self.snake_y -= self.snake_pixel_size 
+        if self.direction == "DOWN":
+            self.snake_y += self.snake_pixel_size 
+        if self.direction == "LEFT":
+            self.snake_x -= self.snake_pixel_size 
+        if self.direction  == "RIGHT":
+            self.snake_x += self.snake_pixel_size 
 
-
+    def collided(self):
+        if self.snake_x > self.screen_width or self.snake_x < 0:
+            return True  
+        if self.snake_y > self.screen_height or self.snake_y < 0:
+            return True  
         
-    print(snake)
-    for part in enumerate(snake):
-        if part[0] == 0: # head
-            pygame.draw.rect(screen, blue,part[1])
+        # collided with the apple 
+        if self.snake_x == self.apple.get_apple_position()["x"]  and self.snake_y == self.apple.get_apple_position()["y"]:
+            print("nom")
+            self.grow()
+            self.apple.spawn()
+
         else:
+            return False
 
-            pygame.draw.rect(screen, red,part[1])
-
-
-    snake.remove(snake[-1])
-
-    # draw apple on screen 
-    pygame.draw.rect(screen, green,(apple_x,apple_y,pixel_size,pixel_size))
+    def grow(self):
+        self.snake_body.insert(0,self.head_position)
 
 
-    # RENDER YOUR GAME HERE
-    pygame.display.flip()
-    clock.tick(15)  # FPS
+    def draw(self):
+        self.head_position = (self.snake_x,self.snake_y,self.snake_pixel_size,self.snake_pixel_size)
+        self.snake_body.insert(0,self.head_position) # insert the new head position 
+        
+        for body in self.snake_body: # draw the entire snake 
+            pygame.draw.rect(self.screen,self.snake_colour,body)
 
-pygame.quit()
+        # remove the tail so all the values are updated 
+        self.snake_body.remove(self.snake_body[-1]) 
+
+
+class Snake_Game():
+    def __init__(self):
+        self.screen_width = 840 
+        self.screen_height = 840 
+        
+        self.pixel_size = 40 
+        self.pixel_grid_max_x = int(self.screen_width / self.pixel_size)
+        self.pixel_grid_max_y = int(self.screen_height / self.pixel_size)
+
+        self.red = (255,0,0)
+        self.green = (0, 255, 0)
+        self.blue = (0, 0, 255)
+        self.white = (255,255,255)
+        self.black = (0,0,0)
+
+        pygame.init()
+        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+        self.clock = pygame.time.Clock()
+        self.running = True 
+
+        self.apple = Apple(screen=self.screen,
+                           apple_colour=self.green,
+                           grid_max_x=self.pixel_grid_max_x,
+                           grid_max_y=self.pixel_grid_max_y,
+                           apple_pixel_size=self.pixel_size
+        )
+
+        self.snake = Snake(
+            screen=self.screen,
+            snake_colour=self.red,
+            width=self.screen_width,
+            height=self.screen_height,
+            apple=self.apple
+        )
+
+    def keypress_events(self,event):
+        if event.type == pygame.QUIT:
+            self.running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP or event.key == pygame.K_w:
+                self.snake.change_direction("UP")
+            if event.key == pygame.K_DOWN or event.key == pygame.K_s:
+                self.snake.change_direction("DOWN")
+            if event.key == pygame.K_LEFT or event.key == pygame.K_a:
+                self.snake.change_direction("LEFT")
+            if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
+                self.snake.change_direction("RIGHT")
+
+
+    def checkered_background(self):
+        i  = 0 
+        for y in range(self.pixel_grid_max_y):
+            for x in range(self.pixel_grid_max_x):
+                if (i % 2  == 0): # even black odd white
+                    colour = self.black
+                else:
+                    colour = self.white 
+                rectangle_position = (y * self.pixel_size,x * self.pixel_size,self.pixel_size,self.pixel_size)
+                pygame.draw.rect(self.screen, colour,rectangle_position)
+                i += 1
+
+
+    def start(self):
+        while self.running:
+            for event in pygame.event.get():
+                self.keypress_events(event)
+            self.checkered_background()
+        
+            if self.snake.collided() == True:
+                self.running = False 
+    
+            self.snake.move()
+            self.snake.draw()
+            self.apple.draw()
+            pygame.display.flip()
+            self.clock.tick(15)  # FPS
+
+Snake_Game().start()
