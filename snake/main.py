@@ -26,6 +26,9 @@ class Snake():
 
     # sets the direction the snake should move in  
     def set_head_direction(self,direction):
+        # makes sure the snake cant go back on itself, it can only go forward 
+        if direction == "UP" and self.direction == "DOWN" or self.direction == "DOWN" and direction == "UP" or self.direction == "LEFT" and direction == "RIGHT" or self.direction == "RIGHT" and direction == "LEFT":
+            return 
         self.direction = direction 
  
     # changes the snake position based on the direction 
@@ -42,7 +45,7 @@ class Snake():
 
     def grow(self):
         print("grow")
-        self.snake_body.insert(0,(self.snake_x,self.snake_y,pixel_size,pixel_size))
+        self.snake_body.insert(1,(self.snake_x,self.snake_y,pixel_size,pixel_size))
 
     def draw(self):
         self.snake_body.insert(0,(self.snake_x,self.snake_y,pixel_size,pixel_size))
@@ -116,14 +119,21 @@ class Snake_Game():
 
         if snake_head[0] > screen_height or snake_head[1] > screen_width or snake_head[0] < 0 or snake_head[1] < 0:
             print("head collision with border of game detected")
-        #for parts in self.snake.body()[1:]:
-        #    snake_head = self.snake.body()
-        #    print(snake_head)
-        #    body_part_x = parts[0] 
-        #    body_part_y = parts[1]
-        #    if snake_head[0] == body_part_x and snake_head[1] == body_part_y:
-        #        print("yo")
+        
 
+        
+        if snake_head in snake_body[1:]:
+            print("yo")
+
+        print(self.snake.body())
+        """
+        for parts in self.snake.body()[1:]:
+            snake_head = self.snake.body()[0]
+            body_part_x = parts[0] 
+            body_part_y = parts[1]
+            if snake_head[0] == body_part_x and snake_head[1] == body_part_y:
+                print("yo")
+        """
     def checkered_background(self):
         i  = 0 
         for y in range(pixel_grid_max_y):
