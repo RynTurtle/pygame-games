@@ -1,5 +1,6 @@
 import pygame 
 import random 
+import time 
 screen_width = 840 
 screen_height = 840 
 pixel_size = 40 
@@ -13,6 +14,7 @@ black = (0,0,0)
 
 pygame.init()
 screen = pygame.display.set_mode((screen_width,screen_height))
+text_font = pygame.font.SysFont("Arial",30)
 
 
 
@@ -45,7 +47,7 @@ class Snake():
 
     def grow(self):
         print("grow")
-        self.snake_body.insert(1,(self.snake_x,self.snake_y,pixel_size,pixel_size))
+        self.snake_body.append((self.snake_x,self.snake_y,pixel_size,pixel_size))
 
     def draw(self):
         self.snake_body.insert(0,(self.snake_x,self.snake_y,pixel_size,pixel_size))
@@ -72,6 +74,8 @@ class Apple():
         self.apple_x = random.randrange(0,pixel_grid_max_x) * pixel_size
         self.apple_y = random.randrange(0,pixel_grid_max_y) * pixel_size
         
+    def eaten(self):
+        return self.apples_eaten
 
     def spawn(self):
         pygame.draw.rect(screen,red,(self.apple_x,self.apple_y,pixel_size,pixel_size))
@@ -85,6 +89,7 @@ class Snake_Game():
     def __init__(self):
         self.clock = pygame.time.Clock()
         self.running = True 
+        self.time_start = time.time()
 
         self.snake = Snake()
         self.apple = Apple()
@@ -100,8 +105,20 @@ class Snake_Game():
                 self.snake.set_head_direction("LEFT")
             if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                 self.snake.set_head_direction("RIGHT")
+    
+    def stats(self):
+        # current time 
+        # current score 
+        elapsed =  round(time.time() - self.time_start)  
+        score = self.apple.eaten()
 
+        img = text_font.render(f"time: {elapsed}s",True,red)
+        img2 = text_font.render(f"score: {score}",True,red)
 
+        screen.blit(img,(screen_width - pixel_size * 2.5,0))
+        screen.blit(img2,(screen_width - pixel_size * 2.5,pixel_size))
+
+        
     def game_over():
         pass 
 
@@ -119,21 +136,13 @@ class Snake_Game():
 
         if snake_head[0] > screen_height or snake_head[1] > screen_width or snake_head[0] < 0 or snake_head[1] < 0:
             print("head collision with border of game detected")
-        
+            self.running = False 
 
-        
         if snake_head in snake_body[1:]:
-            print("yo")
+            print("snake head hit its body")
+            self.running = False 
 
-        print(self.snake.body())
-        """
-        for parts in self.snake.body()[1:]:
-            snake_head = self.snake.body()[0]
-            body_part_x = parts[0] 
-            body_part_y = parts[1]
-            if snake_head[0] == body_part_x and snake_head[1] == body_part_y:
-                print("yo")
-        """
+
     def checkered_background(self):
         i  = 0 
         for y in range(pixel_grid_max_y):
@@ -158,7 +167,7 @@ class Snake_Game():
             self.snake.move()
             self.apple.spawn()
             self.check_collision()
-
+            self.stats()
 
             pygame.display.flip()
             self.clock.tick(15)  # FPS
