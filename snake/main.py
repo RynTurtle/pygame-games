@@ -23,7 +23,6 @@ class Snake():
         self.snake_y = 0 
         self.snake_x = 400
         self.snake_body = []
-    
 
     # sets the direction the snake should move in  
     def set_head_direction(self,direction):
@@ -42,22 +41,20 @@ class Snake():
             self.snake_x += pixel_size 
 
     def grow(self):
-        self.snake_body.insert(0,self.head_position)
+        print("grow")
+        self.snake_body.insert(0,(self.snake_x,self.snake_y,pixel_size,pixel_size))
 
     def draw(self):
-        self.head_position = (self.snake_x,self.snake_y,pixel_size,pixel_size)
-        self.snake_body.insert(0,self.head_position) # insert the new head position 
+        self.snake_body.insert(0,(self.snake_x,self.snake_y,pixel_size,pixel_size))
+        if len(self.snake_body) > 1:
+            self.snake_body.remove(self.snake_body[-1]) 
+    
         for body in self.snake_body: # draw the entire snake 
             pygame.draw.rect(screen,green,body)
-        # remove the tail so all the values are updated 
-        self.snake_body.remove(self.snake_body[-1]) 
 
 
     def body(self):
-        if len(self.snake_body) == 0:
-            return [self.head_position] 
-        else:
-            return self.snake_body 
+        return self.snake_body 
         
 
 class Apple():
@@ -110,24 +107,22 @@ class Snake_Game():
         # if snake touches border of game
         # if snake touches apple 
         apple_position = self.apple.position() 
-
         snake_body = self.snake.body()
         snake_head = snake_body[0]
         if snake_head[0] == apple_position["x"] and snake_head[1] == apple_position["y"]:
             print("head collision with apple detected")
+            self.apple.eat()
+            self.snake.grow()
 
         if snake_head[0] > screen_height or snake_head[1] > screen_width or snake_head[0] < 0 or snake_head[1] < 0:
             print("head collision with border of game detected")
-
-        if len(snake_body) > 1:
-            for parts in snake_body:
-                body_part_x = parts[0] 
-                body_part_y = parts[1]
-                if snake_head[0] == body_part_x and snake_head[1] == body_part_y:
-                    print("head collision with body detected")
-
-
-
+        #for parts in self.snake.body()[1:]:
+        #    snake_head = self.snake.body()
+        #    print(snake_head)
+        #    body_part_x = parts[0] 
+        #    body_part_y = parts[1]
+        #    if snake_head[0] == body_part_x and snake_head[1] == body_part_y:
+        #        print("yo")
 
     def checkered_background(self):
         i  = 0 
