@@ -47,7 +47,7 @@ class Snake():
 
     def grow(self):
         print("grow")
-        self.snake_body.append((self.snake_x,self.snake_y,pixel_size,pixel_size))
+        self.snake_body.insert(0,(self.snake_x,self.snake_y,pixel_size,pixel_size))
 
     def draw(self):
         self.snake_body.insert(0,(self.snake_x,self.snake_y,pixel_size,pixel_size))
@@ -138,7 +138,7 @@ class Snake_Game():
             print("head collision with border of game detected")
             self.running = False 
 
-        if snake_head in snake_body[1:]:
+        if snake_head in snake_body[2:]:
             print("snake head hit its body")
             self.running = False 
 
