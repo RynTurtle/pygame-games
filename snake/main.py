@@ -68,8 +68,6 @@ class Apple():
         self.apple_y = 0 
         self.apples_eaten = 0 
         self.random_apple()
-
-        
     def random_apple(self):
         self.apple_x = random.randrange(0,pixel_grid_max_x) * pixel_size
         self.apple_y = random.randrange(0,pixel_grid_max_y) * pixel_size
@@ -78,8 +76,7 @@ class Apple():
     def eat(self):
         # add +1 to counter and randomise the next apple position
         self.apples_eaten += 1 
-        self.random_apple()
-
+        self.random_apple()    
     def eaten(self):
         return self.apples_eaten
 
@@ -135,12 +132,13 @@ class Snake_Game():
         apple_position = self.apple.position() 
         snake_body = self.snake.body()
         snake_head = snake_body[0]
+        print(snake_body)
         if snake_head[0] == apple_position["x"] and snake_head[1] == apple_position["y"]:
             print("head collision with apple detected")
             self.apple.eat()
             self.snake.grow()
 
-        if snake_head[0] > screen_height or snake_head[1] > screen_width or snake_head[0] < 0 or snake_head[1] < 0:
+        if snake_head[0] == screen_height or snake_head[1] == screen_width or snake_head[0] < 0 or snake_head[1] < 0:
             print("head collision with border of game detected")
             self.running = False 
 
