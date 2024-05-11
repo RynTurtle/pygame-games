@@ -67,13 +67,19 @@ class Apple():
         self.apple_x = 0 
         self.apple_y = 0 
         self.apples_eaten = 0 
+        self.random_apple()
+
+        
+    def random_apple(self):
+        self.apple_x = random.randrange(0,pixel_grid_max_x) * pixel_size
+        self.apple_y = random.randrange(0,pixel_grid_max_y) * pixel_size
+        
 
     def eat(self):
         # add +1 to counter and randomise the next apple position
         self.apples_eaten += 1 
-        self.apple_x = random.randrange(0,pixel_grid_max_x) * pixel_size
-        self.apple_y = random.randrange(0,pixel_grid_max_y) * pixel_size
-        
+        self.random_apple()
+
     def eaten(self):
         return self.apples_eaten
 
