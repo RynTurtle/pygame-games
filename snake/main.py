@@ -34,7 +34,7 @@ class Snake():
         self.direction = direction 
  
     # changes the snake position based on the direction 
-    def move(self):
+    def update_position(self):
         # change the x and y coordinates based on movements given 
         if self.direction == "UP":
             self.snake_y -= pixel_size 
@@ -167,8 +167,8 @@ class Snake_Game():
             self.checkered_background()
 
 
+            self.snake.update_position()
             self.snake.draw()
-            self.snake.move()
             self.apple.spawn()
             self.check_collision()
             self.stats()
